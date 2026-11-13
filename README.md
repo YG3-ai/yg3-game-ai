@@ -28,6 +28,8 @@ Later chapters will be added as they are implemented and measured. Contributions
 
 Tutorial code and writing are MIT licensed. Included models, environment art, font, and videos have their own terms; see [ASSETS.md](ASSETS.md). YG3 maintains the tutorials. Vita, the enemy, and the desert scene are the game content used for this chapter; no other squad models or private environments are included.
 
+Vita is © OTR HVN and may be used non-commercially with credit; commercial use requires separate permission. See [ASSETS.md](ASSETS.md) for the asset-by-asset terms.
+
 ## About YG3 and OTR HVN
 
 YG3 builds open environments and practical AI experiments for agents, games, and embodied learning. OTR HVN develops the game that provides this chapter's desert example. As a small side note, Vita is an early character design for OTR HVN's upcoming game, a spiritual successor to *IRON ABYSS*.

@@ -37,6 +37,8 @@ You can keep the AI code and replace Vita's model in `scenes/characters/vita.tsc
 
 The current Vita controller expects an `AnimationPlayer`, a Mixamo-style hips bone, the listed movement/dodge/hit animations, and a rifle node named `eden_rifle_v001`. The enemy expects `Walking`, `Running`, `Punch_Combo`, and `Roll_Dodge`. If your assets use different names, map them in `scripts/vita_controller.gd`, `scripts/rifle_actions.gd`, and `scripts/enemy_controller.gd`. You can instead animate procedural characters, provided you keep the action and observation contracts intact. Set your own collision heights, punch range, firing origin, timings, and camera framing, then retrain and rerun evaluation. The included weights will not transfer unchanged to a different game.
 
+Follow the [adaptation walkthrough](ADAPT_YOUR_GAME.md) for the exact feature order, action meanings, asset hooks, retraining steps, and checks to run in your own game.
+
 ## Project map
 
 - `scenes/levels/level_0.tscn`: desert and ruins layout, Vita and enemy instances.
