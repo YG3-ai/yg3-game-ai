@@ -2,7 +2,7 @@
 
 <a id="english"></a>
 
-# Chapter 01 — Train a Game Combat Agent: From Scripted Policy to Neural Policy
+# Chapter 01: Train a Game Combat Agent: From Scripted Policy to Neural Policy
 
 This chapter uses the same desert dunes and abandoned city layout as YG3's Level 0 game prototype. Vita is the player character. An animated enemy approaches, punches, and can dodge rifle fire. Both use Godot physics bodies and animation clips.
 
@@ -43,6 +43,28 @@ This is **teacher distillation**, not reinforcement learning or a visual policy.
 
 Why can a small network do this? The teacher's choices are mostly thresholds on a few low-dimensional values. Random sampling puts examples on both sides of those thresholds, and the network learns a smooth approximation. The health and enemy-aim features are available to the model, but the current teacher labels do not depend on them; adding features alone does not teach new behavior. The learned policy can imitate the teacher within this setup, while real-game rollouts reveal timing mistakes and compounding errors that label accuracy can miss. It is not trained to read images, build a world model, or improve beyond its teacher.
 
+<a id="math-behind-it"></a>
+
+## The Math Behind It
+
+For each sample, let `x` be the nine normalized features and let the teacher labels be `m` (one of three movement choices), `f` (fire: 0 or 1), and `d` (dodge: 0 or 1). The trainer uses these dimensions:
+
+```text
+x: 9 values         W1: 24 × 9       b1: 24 values
+h = tanh(W1 x + b1)                 h: 24 values
+z = W2 h + b2       W2: 5 × 24       b2: 5 values
+```
+
+The first three entries of `z` become movement probabilities through `softmax(z[0:3])`. The other two become `p_fire = sigmoid(z[3])` and `p_dodge = sigmoid(z[4])`. Training minimizes a combined classification loss:
+
+```text
+L = -log(p_move[m]) + 1.25 × BCE(f, p_fire) + 2.0 × BCE(d, p_dodge)
+BCE(y, p) = -y log(p) - (1-y) log(1-p)
+weights ← weights - learning_rate × gradient(L)
+```
+
+The coefficients `1.25` and `2.0` give extra weight to fire and dodge errors. `train.py` performs this update after each sample for 40 epochs, with a learning rate that decreases from `0.025` to about `0.0092`. At runtime, Godot takes the largest movement output and fires or dodges when the corresponding sigmoid probability reaches `0.5`. These equations reproduce the implemented trainer; they do not describe a reward-maximizing RL algorithm.
+
 The three held-out start distances are a small smoke evaluation, not proof of broad generalization. Watch for successful actions and failure cases, not only synthetic imitation accuracy.
 
 In the first local six-episode check, the teacher and MLP each averaged 66 points and 60 damage dealt, with no damage taken. They won different individual starting distances. These figures describe this one run; the meaningful exercise is to rerun the comparison after you change the agent or game.
@@ -70,7 +92,7 @@ The next chapter will capture timestamped trajectories and synchronized camera o
 
 <a id="mandarin"></a>
 
-# 第 01 章——训练游戏战斗智能体：从脚本策略到神经网络策略
+# 第 01 章：训练游戏战斗智能体：从脚本策略到神经网络策略
 
 本章使用与 YG3 的 Level 0 游戏原型相同的沙丘及废弃城市布局。Vita 是玩家角色；带动画的敌人会接近她、出拳，也会躲避步枪射击。双方都使用 Godot 的物理角色和动画片段。
 
@@ -104,12 +126,34 @@ godot --headless --path . -- --eval
 ## 训练过程详解
 
 1. **先定义动作。** 脚本从后退、侧移、前进中选一个动作，再分别决定是否开火、是否闪避。脚本策略和神经网络策略都通过 Vita 的 `set_combat_command()` 接口提交决定，因此游戏以相同方式执行动作。
-2. **生成带标签的样本。** `train.py` 中的 `sample()` 随机生成 1,800 个由九个数值组成的战斗状态。`teacher_action()` 为每个状态标注动作：距离小于 1.6 米时后退，大于 3.2 米时前进，开火计时达到 0.55 秒时射击；附近敌人的出拳达到指定阶段且闪避已就绪时闪避。这些是生成的“状态—动作”样本，不是从游戏画面录制的帧。
+2. **生成带标签的样本。** `train.py` 中的 `sample()` 随机生成 1,800 个由九个数值组成的战斗状态。`teacher_action()` 为每个状态标注动作：距离小于 1.6 米时后退，大于 3.2 米时前进，开火计时达到 0.55 秒时射击；附近敌人的出拳达到指定阶段且闪避已就绪时闪避。这些是生成的“状态与动作”样本，不是从游戏画面录制的帧。
 3. **拟合神经网络。** 九个输入经过 24 个使用 `tanh` 的隐藏单元，得到五个输出。前三个输出竞争选择移动方式，后两个分别预测开火和闪避。训练器对样本重复学习 40 轮：每次将预测与教师标签比较，再用随机梯度下降微调权重，使误差减小。固定随机种子让训练可以复现。
 4. **在 Godot 中使用权重。** 训练器写出 `weights/combat_mlp.json`。`scripts/neural_combat_policy.gd` 按相同顺序构造九个特征，运行网络，把输出转成动作，并调用 `set_combat_command()`。Python 与 Godot 两端必须对特征含义及归一化方式保持一致。
 5. **检查实际行为，而不只看标签准确率。** 训练器报告新采样状态上的准确率，也包括 6–9 米的距离划分。`scripts/evaluate.gd` 还会让两种策略分别从相同的三个起始距离进入真实的 Godot 战斗，并记录伤害、动作和得分。仅靠远距离划分并不能证明广泛的分布外能力，因为对这个教师策略而言，“距离远就前进”很容易判断。
 
 小网络为何能学会？教师决策主要是在少量低维数值上设置阈值。随机采样让网络见到阈值两侧的例子，因此可以学到平滑的近似规则。模型虽然能读取生命值和敌人瞄准时间，但当前教师生成标签时并不依赖这些特征；单纯增加特征不会产生新行为。在本示例范围内，网络可以模仿教师；真实游戏回合还能暴露标签准确率无法发现的时机错误及误差累积。它尚未学习读取图像、建立世界模型或超越教师策略。
+
+<a id="mandarin-math-behind-it"></a>
+
+## 背后的数学原理（The Math Behind It）
+
+对每个样本，用 `x` 表示九个归一化特征；教师标签分别为 `m`（三种移动方式之一）、`f`（开火：0 或 1）和 `d`（闪避：0 或 1）。训练器使用以下维度和计算过程：
+
+```text
+x：9 个数值        W1：24 × 9       b1：24 个数值
+h = tanh(W1 x + b1)                 h：24 个数值
+z = W2 h + b2      W2：5 × 24       b2：5 个数值
+```
+
+`z` 的前三项通过 `softmax(z[0:3])` 变成移动方式的概率；后两项分别得到 `p_fire = sigmoid(z[3])` 和 `p_dodge = sigmoid(z[4])`。训练目标是减小组合分类损失：
+
+```text
+L = -log(p_move[m]) + 1.25 × BCE(f, p_fire) + 2.0 × BCE(d, p_dodge)
+BCE(y, p) = -y log(p) - (1-y) log(1-p)
+权重 ← 权重 - 学习率 × 梯度(L)
+```
+
+系数 `1.25` 和 `2.0` 让开火与闪避预测错误受到更高权重。`train.py` 对每个样本更新一次权重，共训练 40 轮；学习率从 `0.025` 逐步降到约 `0.0092`。运行时，Godot 选择数值最高的移动输出；开火或闪避概率达到 `0.5` 时执行相应动作。这些公式对应仓库中实际实现的训练器，而不是以奖励最大化为目标的强化学习算法。
 
 三个未见过的起始距离只构成小规模的冒烟测试，不能证明广泛的泛化能力。除了合成状态上的模仿准确率，还要观察实际动作和失败情况。
 

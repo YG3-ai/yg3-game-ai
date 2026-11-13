@@ -18,11 +18,15 @@ The character and enemy scenes use ordinary Godot model instances. You can repla
 
 Watch the same arena with the [scripted policy](media/vita-scripted.mp4) and the [neural policy](media/vita-neural.mp4). Both clips use Vita and the tutorial enemy.
 
-## How the AI learns—and why this approach works
+## How the AI learns and why this approach works
 
 The first lesson starts with a readable scripted combat policy: keep a useful distance, fire when the weapon is ready, and dodge a nearby punch. `train.py` generates many different combat states and asks that script what to do in each one. A small neural network practices predicting those answers, adjusting its weights after each example. Godot then feeds the network live combat state and executes its movement, fire, and dodge choices. The [chapter explanation](tutorials/01-combat-agent/README.md#training-explained) walks through each stage.
 
 This works in the example because the teacher's decisions depend on a few explicit measurements, such as distance and timing, and the network can approximate those rules from varied examples. The agent learns to imitate a teacher using structured game state. It does not learn from the videos or discover the rules by reinforcement learning; changing the game or its observations calls for new training and a real-game evaluation.
+
+## The Math Behind It
+
+Nine normalized combat measurements form an input vector `x`. The network computes `h = tanh(W1 x + b1)` with 24 hidden values, then `z = W2 h + b2` with five outputs. The first three outputs choose movement; a sigmoid converts each of the last two into a fire or dodge probability. Training lowers the difference between these predictions and the scripted teacher's answers by updating the weights after each example. See [the equations and loss function in Chapter 1](tutorials/01-combat-agent/README.md#math-behind-it).
 
 ## Series roadmap
 
@@ -54,7 +58,7 @@ YG3 builds open environments and practical AI experiments for agents, games, and
 
 ## 从这里开始
 
-[第 01 章：训练游戏战斗智能体——从脚本策略到神经网络策略](tutorials/01-combat-agent/README.md#mandarin)
+[第 01 章：训练游戏战斗智能体：从脚本策略到神经网络策略](tutorials/01-combat-agent/README.md#mandarin)
 
 克隆仓库前请启用 Git LFS，然后安装 Godot 4.7.2 和 Python 3，按章节中的命令操作。示例包含沙丘、废弃城市遗迹、Vita、敌人以及战斗代码；其他角色及其模型不在仓库中。
 
@@ -69,6 +73,10 @@ YG3 builds open environments and practical AI experiments for agents, games, and
 第一课先编写一个容易理解的战斗脚本策略：保持合适的距离、武器准备好时开火、附近敌人出拳时闪避。`train.py` 生成许多不同的战斗状态，并请脚本为每个状态给出动作。小型神经网络反复预测这些答案，每看过一个样本就调整权重。随后，Godot 将实时战斗状态输入网络，并执行它选择的移动、开火和闪避动作。[章节详解](tutorials/01-combat-agent/README.md#mandarin-training-explained)会逐步说明这一过程。
 
 这种方法在示例中有效，是因为教师策略主要依靠距离、时间等少量明确的数值做决定，而网络能通过多样化的样本近似这些规则。智能体学习的是根据结构化游戏状态模仿教师；它没有从视频中学习，也没有通过强化学习自行发现规则。更换游戏或观察数据后，需要重新训练，并在实际游戏回合中评估。
+
+## 背后的数学原理（The Math Behind It）
+
+九个归一化的战斗测量值组成输入向量 `x`。网络先计算 `h = tanh(W1 x + b1)`，得到 24 个隐藏层数值；再计算 `z = W2 h + b2`，得到五个输出。前三个输出用于选择移动方式；后两个经 sigmoid 函数变成开火和闪避概率。训练时，网络比较预测与脚本教师给出的答案，并在每个样本后更新权重以减小误差。具体公式和损失函数见[第 01 章](tutorials/01-combat-agent/README.md#mandarin-math-behind-it)。
 
 ## 系列路线图
 
