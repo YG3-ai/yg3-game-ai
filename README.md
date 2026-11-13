@@ -18,6 +18,12 @@ The character and enemy scenes use ordinary Godot model instances. You can repla
 
 Watch the same arena with the [scripted policy](media/vita-scripted.mp4) and the [neural policy](media/vita-neural.mp4). Both clips use Vita and the tutorial enemy.
 
+## How the AI learns—and why this approach works
+
+The first lesson starts with a readable scripted combat policy: keep a useful distance, fire when the weapon is ready, and dodge a nearby punch. `train.py` generates many different combat states and asks that script what to do in each one. A small neural network practices predicting those answers, adjusting its weights after each example. Godot then feeds the network live combat state and executes its movement, fire, and dodge choices. The [chapter explanation](tutorials/01-combat-agent/README.md#training-explained) walks through each stage.
+
+This works in the example because the teacher's decisions depend on a few explicit measurements, such as distance and timing, and the network can approximate those rules from varied examples. The agent learns to imitate a teacher using structured game state. It does not learn from the videos or discover the rules by reinforcement learning; changing the game or its observations calls for new training and a real-game evaluation.
+
 ## Series roadmap
 
 1. Structured-state combat: scripted teacher, small neural policy, matched evaluation.
@@ -57,6 +63,12 @@ YG3 builds open environments and practical AI experiments for agents, games, and
 ![Vita 在沙漠中躲避敌人](media/vita-neural-preview.png)
 
 观看同一场景中的[脚本策略视频](media/vita-scripted.mp4)和[神经网络策略视频](media/vita-neural.mp4)。两段视频都使用 Vita 和教程敌人。
+
+## AI 如何学习，以及这种方法为何有效
+
+第一课先编写一个容易理解的战斗脚本策略：保持合适的距离、武器准备好时开火、附近敌人出拳时闪避。`train.py` 生成许多不同的战斗状态，并请脚本为每个状态给出动作。小型神经网络反复预测这些答案，每看过一个样本就调整权重。随后，Godot 将实时战斗状态输入网络，并执行它选择的移动、开火和闪避动作。[章节详解](tutorials/01-combat-agent/README.md#mandarin-training-explained)会逐步说明这一过程。
+
+这种方法在示例中有效，是因为教师策略主要依靠距离、时间等少量明确的数值做决定，而网络能通过多样化的样本近似这些规则。智能体学习的是根据结构化游戏状态模仿教师；它没有从视频中学习，也没有通过强化学习自行发现规则。更换游戏或观察数据后，需要重新训练，并在实际游戏回合中评估。
 
 ## 系列路线图
 

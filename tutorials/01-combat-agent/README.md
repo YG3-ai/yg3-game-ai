@@ -31,6 +31,18 @@ The first two runs show the scripted teacher and neural policy in the same level
 
 This is **teacher distillation**, not reinforcement learning or a visual policy. The network sees privileged game state such as distance, action clocks, enemy attack state, and health. It does not see RGB. The original private experiment also tuned a few teacher timings through short real-game episodes; this chapter uses those timings as explicit defaults and focuses on reproducing the distillation and paired evaluation.
 
+<a id="training-explained"></a>
+
+## Training explained, step by step
+
+1. **Define the decisions.** The script chooses one of retreat, strafe, or advance, plus separate fire and dodge flags. Both the scripted and neural policies send these decisions through Vita's `set_combat_command()` interface, so the game executes them in the same way.
+2. **Make labeled examples.** `sample()` in `train.py` draws 1,800 randomized nine-value combat states. `teacher_action()` labels each state: retreat inside 1.6 m, advance beyond 3.2 m, fire after 0.55 s, and dodge when a nearby punch has progressed far enough and dodge is ready. These are generated state–action pairs, not recorded gameplay frames.
+3. **Fit the network.** The 9 inputs pass through 24 `tanh` hidden units to 5 outputs. Three outputs compete for movement; the other two predict fire and dodge. For 40 passes through the examples, stochastic gradient descent compares each prediction with the teacher's label and nudges the weights to reduce the error. The seed is fixed so the training run is repeatable.
+4. **Use the weights in Godot.** The trainer writes `weights/combat_mlp.json`. `scripts/neural_combat_policy.gd` builds the same nine features in the same order, runs the network, converts its outputs into decisions, and calls `set_combat_command()`. Matching feature meanings and normalization between Python and Godot is essential.
+5. **Check behavior, not just labels.** The trainer reports accuracy on new sampled states, including a 6–9 m distance split. `scripts/evaluate.gd` also runs both policies in the actual Godot fight from the same three starting distances and records damage, actions, and score. The distance split alone is easy for this teacher's “advance when far away” rule, so it is not evidence of broad out-of-distribution skill.
+
+Why can a small network do this? The teacher's choices are mostly thresholds on a few low-dimensional values. Random sampling puts examples on both sides of those thresholds, and the network learns a smooth approximation. The health and enemy-aim features are available to the model, but the current teacher labels do not depend on them; adding features alone does not teach new behavior. The learned policy can imitate the teacher within this setup, while real-game rollouts reveal timing mistakes and compounding errors that label accuracy can miss. It is not trained to read images, build a world model, or improve beyond its teacher.
+
 The three held-out start distances are a small smoke evaluation, not proof of broad generalization. Watch for successful actions and failure cases, not only synthetic imitation accuracy.
 
 In the first local six-episode check, the teacher and MLP each averaged 66 points and 60 damage dealt, with no damage taken. They won different individual starting distances. These figures describe this one run; the meaningful exercise is to rerun the comparison after you change the agent or game.
@@ -86,6 +98,18 @@ godot --headless --path . -- --eval
 `train.py` 采样 1,800 个结构化战斗状态，使用 `teacher_action()` 生成标签，再通过随机梯度下降训练一个 9→24→5 的前馈神经网络。输出文件为 `weights/combat_mlp.json`。Godot 端按相同的特征顺序读取权重，并输出移动选择、开火和闪避三个决策。
 
 这种方法是**教师策略蒸馏**，不是强化学习，也不是视觉策略。网络读取距离、动作计时器、敌人攻击状态和生命值等游戏内部状态；它不读取 RGB 画面。最初的私人实验还通过短回合调过教师策略的几个时间参数。本章把这些参数作为明确的默认值，重点复现蒸馏过程和配对评估。
+
+<a id="mandarin-training-explained"></a>
+
+## 训练过程详解
+
+1. **先定义动作。** 脚本从后退、侧移、前进中选一个动作，再分别决定是否开火、是否闪避。脚本策略和神经网络策略都通过 Vita 的 `set_combat_command()` 接口提交决定，因此游戏以相同方式执行动作。
+2. **生成带标签的样本。** `train.py` 中的 `sample()` 随机生成 1,800 个由九个数值组成的战斗状态。`teacher_action()` 为每个状态标注动作：距离小于 1.6 米时后退，大于 3.2 米时前进，开火计时达到 0.55 秒时射击；附近敌人的出拳达到指定阶段且闪避已就绪时闪避。这些是生成的“状态—动作”样本，不是从游戏画面录制的帧。
+3. **拟合神经网络。** 九个输入经过 24 个使用 `tanh` 的隐藏单元，得到五个输出。前三个输出竞争选择移动方式，后两个分别预测开火和闪避。训练器对样本重复学习 40 轮：每次将预测与教师标签比较，再用随机梯度下降微调权重，使误差减小。固定随机种子让训练可以复现。
+4. **在 Godot 中使用权重。** 训练器写出 `weights/combat_mlp.json`。`scripts/neural_combat_policy.gd` 按相同顺序构造九个特征，运行网络，把输出转成动作，并调用 `set_combat_command()`。Python 与 Godot 两端必须对特征含义及归一化方式保持一致。
+5. **检查实际行为，而不只看标签准确率。** 训练器报告新采样状态上的准确率，也包括 6–9 米的距离划分。`scripts/evaluate.gd` 还会让两种策略分别从相同的三个起始距离进入真实的 Godot 战斗，并记录伤害、动作和得分。仅靠远距离划分并不能证明广泛的分布外能力，因为对这个教师策略而言，“距离远就前进”很容易判断。
+
+小网络为何能学会？教师决策主要是在少量低维数值上设置阈值。随机采样让网络见到阈值两侧的例子，因此可以学到平滑的近似规则。模型虽然能读取生命值和敌人瞄准时间，但当前教师生成标签时并不依赖这些特征；单纯增加特征不会产生新行为。在本示例范围内，网络可以模仿教师；真实游戏回合还能暴露标签准确率无法发现的时机错误及误差累积。它尚未学习读取图像、建立世界模型或超越教师策略。
 
 三个未见过的起始距离只构成小规模的冒烟测试，不能证明广泛的泛化能力。除了合成状态上的模仿准确率，还要观察实际动作和失败情况。
 
