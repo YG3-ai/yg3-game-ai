@@ -1,0 +1,187 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/level_0.gd" id="1_eh6x6"]
+[ext_resource type="PackedScene" path="res://assets/environment/dunes.glb" id="2_sagaa"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/Dunes_0.res" id="3_0rc6f"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/Dunes_1.res" id="4_p102h"]
+[ext_resource type="PackedScene" path="res://assets/environment/ruins.glb" id="5_qf67e"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_0.res" id="6_sl5c4"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_1.res" id="7_b5krw"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_2.res" id="8_cx7as"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_3.res" id="9_dt72c"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_4.res" id="10_3kux2"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_5.res" id="11_aab13"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_6.res" id="12_gngue"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_7.res" id="13_6miux"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_8.res" id="14_xi6i6"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsWest_9.res" id="15_lt8ga"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_0.res" id="16_yc3aq"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_1.res" id="17_l1g2h"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_2.res" id="18_0exrd"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_3.res" id="19_eykbg"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_4.res" id="20_ow8tq"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_5.res" id="21_mx2fj"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_6.res" id="22_juaai"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_7.res" id="23_6mxy3"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_8.res" id="24_eu0ar"]
+[ext_resource type="Shape3D" path="res://assets/environment/collision/RuinsEast_9.res" id="25_xpqye"]
+[ext_resource type="PackedScene" path="res://scenes/characters/vita.tscn" id="26_vo6xf"]
+[ext_resource type="Script" path="res://scripts/vita_controller.gd" id="27_y76vq"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/meshy_space_enemy.tscn" id="28_enemy"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rgtqb"]
+sky_top_color = Color(0.16, 0.29, 0.42, 1)
+sky_horizon_color = Color(0.78, 0.66, 0.49, 1)
+ground_bottom_color = Color(0.3, 0.22, 0.14, 1)
+ground_horizon_color = Color(0.78, 0.66, 0.49, 1)
+
+[sub_resource type="Sky" id="Sky_ejotg"]
+sky_material = SubResource("ProceduralSkyMaterial_rgtqb")
+
+[sub_resource type="Environment" id="Environment_2rbqp"]
+background_mode = 2
+sky = SubResource("Sky_ejotg")
+ambient_light_source = 2
+ambient_light_color = Color(0.67, 0.74, 0.85, 1)
+ambient_light_energy = 0.45
+fog_enabled = true
+fog_light_color = Color(0.67, 0.52, 0.35, 1)
+fog_density = 0.0015
+fog_sky_affect = 0.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m7hbw"]
+size = Vector3(1200, 1, 1200)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1lap7"]
+albedo_color = Color(0.46, 0.32, 0.18, 1)
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_hj066"]
+size = Vector2(1200, 1200)
+
+[node name="Level0" type="Node3D" unique_id=436672117]
+script = ExtResource("1_eh6x6")
+
+[node name="WastelandSky" type="WorldEnvironment" parent="." unique_id=1812189604]
+environment = SubResource("Environment_2rbqp")
+
+[node name="DesertSun" type="DirectionalLight3D" parent="." unique_id=916801454]
+transform = Transform3D(0.81915206, 0.3039492, -0.48642042, 0, 0.8480481, 0.52991927, 0.57357645, -0.43408445, 0.69468033, 0, 0, 0)
+light_color = Color(1, 0.83, 0.63, 1)
+light_energy = 0.85
+shadow_enabled = true
+
+[node name="Dunes" type="Node3D" parent="." unique_id=744113545]
+transform = Transform3D(1, 0, 0, 0, 0.25, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Sketchfab_Scene" type="Node3D" parent="Dunes" unique_id=631585138 instance=ExtResource("2_sagaa")]
+transform = Transform3D(1.0850158, 0, 0, 0, 1.0850158, 0, 0, 0, 1.0850158, 0.008683636, -1.0753005, 0.0032532592)
+
+[node name="DunesCollision" type="StaticBody3D" parent="." unique_id=186161508]
+
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="DunesCollision" unique_id=1549229085]
+shape = ExtResource("3_0rc6f")
+
+[node name="@CollisionShape3D@3" type="CollisionShape3D" parent="DunesCollision" unique_id=1468190675]
+shape = ExtResource("4_p102h")
+
+[node name="RuinsWest" type="Node3D" parent="." unique_id=611796879]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, -1, -105)
+
+[node name="Sketchfab_Scene" type="Node3D" parent="RuinsWest" unique_id=1521404975 instance=ExtResource("5_qf67e")]
+transform = Transform3D(0.32355806, 0, 0, 0, 0.32355806, 0, 0, 0, 0.32355806, -5.946446, 0.91417676, -1.6190073)
+
+[node name="RuinsWestCollision" type="StaticBody3D" parent="." unique_id=1149950302]
+
+[node name="@CollisionShape3D@4" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1164638351]
+shape = ExtResource("6_sl5c4")
+
+[node name="@CollisionShape3D@5" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=514593905]
+shape = ExtResource("7_b5krw")
+
+[node name="@CollisionShape3D@6" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1022368088]
+shape = ExtResource("8_cx7as")
+
+[node name="@CollisionShape3D@7" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=637498732]
+shape = ExtResource("9_dt72c")
+
+[node name="@CollisionShape3D@8" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=2061834273]
+shape = ExtResource("10_3kux2")
+
+[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1022465447]
+shape = ExtResource("11_aab13")
+
+[node name="@CollisionShape3D@10" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1681304160]
+shape = ExtResource("12_gngue")
+
+[node name="@CollisionShape3D@11" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1164884600]
+shape = ExtResource("13_6miux")
+
+[node name="@CollisionShape3D@12" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=1085682219]
+shape = ExtResource("14_xi6i6")
+
+[node name="@CollisionShape3D@13" type="CollisionShape3D" parent="RuinsWestCollision" unique_id=537547944]
+shape = ExtResource("15_lt8ga")
+
+[node name="RuinsEast" type="Node3D" parent="." unique_id=464223812]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -1, -105)
+
+[node name="Sketchfab_Scene" type="Node3D" parent="RuinsEast" unique_id=360093304 instance=ExtResource("5_qf67e")]
+transform = Transform3D(0.32355806, 0, 0, 0, 0.32355806, 0, 0, 0, 0.32355806, -5.946446, 0.91417676, -1.6190073)
+
+[node name="RuinsEastCollision" type="StaticBody3D" parent="." unique_id=1423390439]
+
+[node name="@CollisionShape3D@14" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=673157272]
+shape = ExtResource("16_yc3aq")
+
+[node name="@CollisionShape3D@15" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=676377614]
+shape = ExtResource("17_l1g2h")
+
+[node name="@CollisionShape3D@16" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=1651819591]
+shape = ExtResource("18_0exrd")
+
+[node name="@CollisionShape3D@17" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=1387443067]
+shape = ExtResource("19_eykbg")
+
+[node name="@CollisionShape3D@18" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=67764881]
+shape = ExtResource("20_ow8tq")
+
+[node name="@CollisionShape3D@19" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=909678453]
+shape = ExtResource("21_mx2fj")
+
+[node name="@CollisionShape3D@20" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=1716807416]
+shape = ExtResource("22_juaai")
+
+[node name="@CollisionShape3D@21" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=1993815704]
+shape = ExtResource("23_6mxy3")
+
+[node name="@CollisionShape3D@22" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=1050417012]
+shape = ExtResource("24_eu0ar")
+
+[node name="@CollisionShape3D@23" type="CollisionShape3D" parent="RuinsEastCollision" unique_id=2021553717]
+shape = ExtResource("25_xpqye")
+
+[node name="FallbackSand" type="StaticBody3D" parent="." unique_id=823954742]
+
+[node name="@CollisionShape3D@24" type="CollisionShape3D" parent="FallbackSand" unique_id=1771892506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+shape = SubResource("BoxShape3D_m7hbw")
+
+[node name="@MeshInstance3D@25" type="MeshInstance3D" parent="FallbackSand" unique_id=892115805]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.49, 0)
+material_override = SubResource("StandardMaterial3D_1lap7")
+mesh = SubResource("PlaneMesh_hj066")
+
+[node name="PlayerSpawn" type="Marker3D" parent="." unique_id=1001707315]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 12)
+
+[node name="Vita" type="CharacterBody3D" parent="." unique_id=1853475678 instance=ExtResource("26_vo6xf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 12)
+collision_layer = 2
+floor_max_angle = 0.872665
+floor_snap_length = 0.4
+script = ExtResource("27_y76vq")
+
+[node name="Enemy" parent="." instance=ExtResource("28_enemy")]
+position = Vector3(0, 15, -2)
+target_path = NodePath("../Vita")

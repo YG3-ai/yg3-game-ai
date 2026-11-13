@@ -1,0 +1,10 @@
+.godot/
+__pycache__/
+*.pyc
+.DS_Store
+*.glb.import
+*.png.import
+*.gd.uid
+*.gdshader.uid
+media/*.avi
+*.import

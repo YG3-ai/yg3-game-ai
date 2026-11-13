@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/vita_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/characters/vita.glb" id="2"]
+[sub_resource type="CapsuleShape3D" id="Capsule"]
+radius = 0.25
+height = 1.70
+[sub_resource type="SphereShape3D" id="CameraSweep"]
+radius = 0.18
+
+[node name="Vita" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.4
+floor_max_angle = 0.872665
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0,0.86,0)
+shape = SubResource("Capsule")
+
+[node name="VisualPivot" type="Node3D" parent="."]
+rotation = Vector3(0,3.141593,0)
+
+[node name="Model" parent="VisualPivot" instance=ExtResource("2")]
+
+[node name="CameraRig" type="Node3D" parent="."]
+top_level = true
+
+[node name="Pitch" type="Node3D" parent="CameraRig"]
+rotation = Vector3(-0.20,0,0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraRig/Pitch"]
+spring_length = 4.0
+margin = 0.12
+collision_mask = 1
+shape = SubResource("CameraSweep")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig/Pitch/SpringArm3D"]
+current = true
+fov = 62.0
+far = 1400.0
